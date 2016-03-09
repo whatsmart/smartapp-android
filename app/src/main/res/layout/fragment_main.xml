@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/msg_list"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/send_text">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView"
+            android:textColor="#ff000000"
+            android:text="sdafasdf" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/send_text"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignEnd="@id/send_text"
+        android:background="@drawable/top_border">
+
+        <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/bt_voice"
+            android:src="@drawable/bt_voice"
+            android:background="#00ffffff"
+            android:contentDescription="voice"
+            android:layout_gravity="left|bottom"
+            android:layout_alignParentEnd="false"
+            android:scaleType="fitCenter"
+            android:layout_alignParentBottom="false"
+            android:adjustViewBounds="false"
+            android:baselineAlignBottom="false"
+            android:layout_alignBottom="@+id/et_text"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_text"
+            android:imeOptions="actionSend"
+            android:inputType="text|textMultiLine"
+            android:textSize="18sp"
+            android:focusable="true"
+            android:textColor="#ff333333"
+            android:maxLines="3"
+            android:layout_gravity="bottom"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_edittext_send_text"
+            android:layout_toStartOf="@+id/bt_send"
+            android:layout_toEndOf="@id/bt_voice"
+            android:lineSpacingMultiplier="1.0"
+            android:lineSpacingExtra="0dp"
+            android:drawablePadding="0dp"
+            android:includeFontPadding="false"
+            android:layout_marginBottom="7dp"
+            android:layout_marginTop="7dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="5dp" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:id="@id/bt_send"
+            android:text="@string/send_msg"
+            android:background="@drawable/bg_button_send"
+            android:textColor="#ffffffff"
+            android:padding="0dp"
+            android:textSize="15sp"
+            android:layout_alignParentEnd="false"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="true"
+            android:scrollIndicators="none"
+            android:layout_alignBottom="@+id/et_text"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/send_voice"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:background="@drawable/top_border"
+        android:visibility="gone">
+
+        <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/bt_keyboard"
+            android:src="@drawable/bt_keyboard"
+            android:background="#00ffffff"
+            android:contentDescription="voice"
+            android:layout_gravity="left|bottom"
+            android:layout_alignParentEnd="false"
+            android:scaleType="fitCenter"
+            android:layout_alignParentBottom="false"
+            android:adjustViewBounds="false"
+            android:baselineAlignBottom="false"
+            android:layout_marginLeft="7dp"
+            android:layout_marginRight="7dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="7dp" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:id="@+id/bt_speak"
+            android:text="@string/press_to_speak"
+            android:background="@drawable/bg_button_send_voice"
+            android:textColor="#ff333333"
+            android:padding="0dp"
+            android:textSize="15sp"
+            android:layout_alignParentEnd="false"
+            android:scrollIndicators="none"
+            android:layout_marginRight="7dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="7dp"
+            android:layout_toRightOf="@+id/bt_keyboard"
+            android:foreground="@drawable/bg_button_send_voice" />
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">SmartApp</string>
+    <string name="send_msg">发送</string>
+    <string name="press_to_speak">按住说话</string>
+    <string name="message_list">消息</string>
 </resources>
