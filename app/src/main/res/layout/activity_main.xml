@@ -1,28 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main_drawer"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/Base.TextAppearance.AppCompat.Headline">
+    android:id="@+id/main">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </android.support.v4.view.ViewPager>
+        android:layout_height="match_parent"
+        android:id="@+id/fragment_content"
+        android:orientation="vertical"
+        android:layout_above="@+id/sendtext"
+        android:layout_alignParentTop="true">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sendtext"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:background="@drawable/top_border"
+        android:visibility="gone"
+        android:layout_above="@+id/tabs">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/msg_text"
+            android:imeOptions="normal|actionSend"
+            android:inputType="text|textMultiLine"
+            android:textSize="18sp"
+            android:focusable="true"
+            android:textColor="#ff333333"
+            android:maxLines="3"
+            android:layout_gravity="bottom"
+            android:gravity="center_vertical"
+            android:lineSpacingMultiplier="1.0"
+            android:lineSpacingExtra="0dp"
+            android:drawablePadding="0dp"
+            android:includeFontPadding="false"
+            android:layout_marginBottom="7dp"
+            android:layout_marginTop="7dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="5dp" />
+
+    </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:background="#ffdddddd">
-        <ListView
-            android:id="@+id/main_menu"
+        android:id="@+id/tabs"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_tabs"
+        android:baselineAligned="false" >
+
+        <LinearLayout
+            android:id="@+id/task_tab"
+            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginLeft="16dp">
-        </ListView>
+            android:layout_weight="1"
+            android:layout_marginTop="14dp" >
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/task_icon"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:id="@+id/task_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="任务"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:id="@+id/task_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/device_tab"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="14dp" >
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/device_icon"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:id="@+id/device_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设备"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:id="@+id/device_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/msg_tab"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp" >
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/btn_voice"
+                android:background="#00eeeeee"
+                android:id="@+id/btn_voice" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/me_tab"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="14dp" >
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/me_icon"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:id="@+id/me_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:id="@+id/me_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setting_tab"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="14dp" >
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/setting_icon"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:id="@+id/setting_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:id="@+id/setting_label" />
+        </LinearLayout>
     </LinearLayout>
 
-</android.support.v4.widget.DrawerLayout>
+</RelativeLayout>
