@@ -20,7 +20,9 @@ public class DeviceFragment extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_device, container, false);
 
         //toobar
-        Toolbar toobar = (Toolbar) view.findViewById(R.id.toobar);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toobar_device);
+        toolbar.setTitle("设备");
+        toolbar.setTitleTextColor(0xffffffff);
 
         return view;
     }

@@ -6,7 +6,7 @@
     <android.support.v7.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toobar"
+        android:id="@+id/toobar_device"
         android:background="#0066cc">
     </android.support.v7.widget.Toolbar>
 

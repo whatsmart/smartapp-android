@@ -10,41 +10,9 @@
         android:layout_height="match_parent"
         android:id="@+id/fragment_content"
         android:orientation="vertical"
-        android:layout_above="@+id/sendtext"
-        android:layout_alignParentTop="true">
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/sendtext"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false"
-        android:background="@drawable/top_border"
-        android:visibility="gone"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="-16px"
         android:layout_above="@+id/tabs">
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/msg_text"
-            android:imeOptions="normal|actionSend"
-            android:inputType="text|textMultiLine"
-            android:textSize="18sp"
-            android:focusable="true"
-            android:textColor="#ff333333"
-            android:maxLines="3"
-            android:layout_gravity="bottom"
-            android:gravity="center_vertical"
-            android:lineSpacingMultiplier="1.0"
-            android:lineSpacingExtra="0dp"
-            android:drawablePadding="0dp"
-            android:includeFontPadding="false"
-            android:layout_marginBottom="7dp"
-            android:layout_marginTop="7dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="5dp" />
-
     </RelativeLayout>
 
     <LinearLayout
