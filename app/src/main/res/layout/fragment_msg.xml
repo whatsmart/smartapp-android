@@ -6,11 +6,11 @@
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/toobar_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0066cc">
-
+        android:id="@+id/toolbar_msg"
+        android:layout_alignParentTop="true"
+        style="@style/Toolbar">
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
@@ -19,7 +19,8 @@
         android:id="@+id/msg_list"
         android:orientation="vertical"
         android:layout_above="@+id/input_box"
-        android:layout_below="@+id/toobar_msg">
+        android:layout_marginBottom="20px"
+        android:layout_below="@+id/toolbar_msg">
 
         <TextView
             android:layout_width="match_parent"

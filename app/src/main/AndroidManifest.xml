@@ -1,7 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.whatsmart.smartapp">
 
-    <application android:allowBackup="true" android:label="WhatSmart"
+    <application
+        android:name=".SmartApp"
+        android:allowBackup="true" android:label="WhatSmart"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher" android:supportsRtl="true">
 
