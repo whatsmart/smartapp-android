@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by blue on 2016/3/16.
  */
 public class SmartApp extends Application {
-    private ArrayList<Device> devices;
+    private ArrayList<Device> devices = new ArrayList<>();
 
     public ArrayList<Device> getDevices() {
         return devices;

@@ -1,300 +1,250 @@
 package org.whatsmart.smartapp.ui;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
 import org.whatsmart.smartapp.base.device.Device;
 
+import java.lang.reflect.Array;
+import java.security.KeyStore;
 import java.util.ArrayList;
-
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 /**
  * Created by blue on 2016/3/7.
  */
 public class MainActivity extends AppCompatActivity {
 
-    private Fragment curFragment;
-    private FragmentManager fragmentManager;
+    private DrawerLayout drawerLayout;
+    private ListView lv_mainMenu;
+    private int active_item = -1;
+    private ArrayList<MainMenuItem> mainMenuItems;
 
-    private LinearLayout taskTab;
-    private LinearLayout deviceTab;
-    private LinearLayout meTab;
-    private LinearLayout settingTab;
-
-    private Fragment taskFagment = null;
+    private Fragment msgFragment;
     private Fragment deviceFragment = null;
-    private Fragment msgFragment = null;
+    private Fragment taskFragment = null;
     private Fragment meFragment = null;
     private Fragment settingFragment = null;
-
-    private SmartApp smartApp;
-    private LinearLayout tabs;
-    private LinearLayout msgTab;
+    private BaseAdapter mainMenuAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //application
-        smartApp = (SmartApp) getApplication();
-        smartApp.setDevices(new ArrayList<Device>());
-
-        //load layout
         setContentView(R.layout.activity_main);
 
-        //system bar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            setTranslucentStatus(true);
-        }
+        mainMenuItems = new ArrayList<>();
+        MainMenuItem menuItem;
+        menuItem = new MainMenuItem("msg", R.drawable.navi_msg, R.drawable.navi_msg_active, "消息");
+        mainMenuItems.add(menuItem);
+        menuItem = new MainMenuItem("device", R.drawable.navi_device,  R.drawable.navi_device_active, "设备管理");
+        mainMenuItems.add(menuItem);
+        menuItem = new MainMenuItem("task", R.drawable.navi_task, R.drawable.navi_task_active, "任务管理");
+        mainMenuItems.add(menuItem);
+        menuItem = new MainMenuItem("me", R.drawable.navi_me, R.drawable.navi_me_active, "个人中心");
+        mainMenuItems.add(menuItem);
+        menuItem = new MainMenuItem("setting", R.drawable.navi_setting, R.drawable.navi_setting_active, "系统设置");
+        mainMenuItems.add(menuItem);
+
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        lv_mainMenu = (ListView) findViewById(R.id.main_menu);
+        RelativeLayout drawer_header = (RelativeLayout) findViewById(R.id.drawer_header);
+
+        // Set the adapter for the list view
+        mainMenuAdapter = new MainMenuAdapter();
+        lv_mainMenu.setAdapter(mainMenuAdapter);
+        // Set the list's click listener
+        lv_mainMenu.setOnItemClickListener(new DrawerItemClickListener());
+        //drawerLayout.setScrimColor(Color.TRANSPARENT);
+
+        //system bar tint
+        setTranslucentStatus(true);
+
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
-        tintManager.setStatusBarTintEnabled(true);
-        tintManager.setNavigationBarTintEnabled(true);
-        tintManager.setStatusBarTintColor(0xff0066cc);
-
-        View view = findViewById(R.id.main_container);
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
-        view.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
+        drawer_header.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
+        tintManager.setTintColor(0x00007fff);
+        tintManager.setStatusBarTintEnabled(true);
 
-        //init filed
-        fragmentManager = getSupportFragmentManager();
-
-        tabs = (LinearLayout) findViewById(R.id.tabs);
-
-        taskTab = (LinearLayout) findViewById(R.id.task_tab);
-        deviceTab = (LinearLayout) findViewById(R.id.device_tab);
-        msgTab = (LinearLayout) findViewById(R.id.msg_tab);
-        meTab = (LinearLayout) findViewById(R.id.me_tab);
-        settingTab = (LinearLayout) findViewById(R.id.setting_tab);
-
-        //setup msg fragment
+        //主页显示消息列表
         msgFragment = new MsgFragment();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container_main, msgFragment, "msg").commit();
-        curFragment = msgFragment;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .add(R.id.content_frame, msgFragment, "msg")
+                .show(msgFragment).commit();
+    }
 
-        //tabs switch
-        taskTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (taskFagment == null)
-                    taskFagment = new TaskFragment();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container_main, taskFagment, "task").commit();
-                curFragment = taskFagment;
-                ImageView icon = (ImageView) findViewById(R.id.task_tab_icon);
-                TextView label = (TextView) findViewById(R.id.task_tab_label);
-                setTabUnactived();
-                icon.setImageResource(R.drawable.task_icon_actived);
-                label.setTextColor(0xff0066cc);
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        public void hideAllFragment() {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            if (msgFragment != null) {
+                fragmentTransaction.hide(msgFragment);
             }
-        });
+            if (deviceFragment != null) {
+                fragmentTransaction.hide(deviceFragment);
+            }
+            if (taskFragment != null) {
+                fragmentTransaction.hide(taskFragment);
+            }
+            if (meFragment != null) {
+                fragmentTransaction.hide(meFragment);
+            }
+            if (settingFragment != null) {
+                fragmentTransaction.hide(settingFragment);
+            }
+            fragmentTransaction.commit();
+        }
 
-        deviceTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (deviceFragment == null)
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            MainMenuItem menuItem = mainMenuItems.get(position);
+
+            if (menuItem.tag == "msg") {
+                if (msgFragment == null) {
+                    msgFragment = new MsgFragment();
+                    fragmentTransaction.add(R.id.content_frame, msgFragment, "msg");
+                }
+                hideAllFragment();
+                fragmentTransaction.show(msgFragment).commit();
+            } else if (menuItem.tag == "device") {
+                if (deviceFragment == null) {
                     deviceFragment = new DeviceFragment();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container_main, deviceFragment, "device").commit();
-                curFragment = deviceFragment;
-                ImageView icon = (ImageView) findViewById(R.id.device_tab_icon);
-                TextView label = (TextView) findViewById(R.id.device_tab_label);
-                setTabUnactived();
-                icon.setImageResource(R.drawable.device_icon_actived);
-                label.setTextColor(0xff0066cc);
-            }
-        });
-
-        meTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (meFragment == null)
+                    fragmentTransaction.add(R.id.content_frame, deviceFragment, "device");
+                }
+                hideAllFragment();
+                fragmentTransaction.show(deviceFragment).commit();
+            } else if (menuItem.tag == "task") {
+                if (taskFragment == null) {
+                    taskFragment = new TaskFragment();
+                    fragmentTransaction.add(R.id.content_frame, taskFragment, "task");
+                }
+                hideAllFragment();
+                fragmentTransaction.show(taskFragment).commit();
+            } else if (menuItem.tag == "me") {
+                if (meFragment == null) {
                     meFragment = new MeFragment();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container_main, meFragment, "me").commit();
-                curFragment = meFragment;
-                ImageView icon = (ImageView) findViewById(R.id.me_tab_icon);
-                TextView label = (TextView) findViewById(R.id.me_tab_label);
-                setTabUnactived();
-                icon.setImageResource(R.drawable.me_icon_actived);
-                label.setTextColor(0xff0066cc);
-            }
-        });
-
-        settingTab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (settingFragment == null)
+                    fragmentTransaction.add(R.id.content_frame, meFragment, "me");
+                }
+                hideAllFragment();
+                fragmentTransaction.show(meFragment).commit();
+            } else if (menuItem.tag == "setting"){
+                if (settingFragment == null) {
                     settingFragment = new SettingFragment();
-                fragmentManager.beginTransaction().replace(R.id.fragment_container_main, settingFragment, "setting").commit();
-                curFragment = settingFragment;
-                ImageView icon = (ImageView) findViewById(R.id.setting_tab_icon);
-                TextView label = (TextView) findViewById(R.id.setting_tab_label);
-                setTabUnactived();
-                icon.setImageResource(R.drawable.setting_icon_actived);
-                label.setTextColor(0xff0066cc);
-            }
-        });
-
-        //voice button
-        ImageButton btnVoice = (ImageButton) findViewById(R.id.btn_voice);
-        btnVoice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (curFragment == msgFragment) {
-                    System.out.println("clicked, do nothing");
-                } else if (curFragment != msgFragment) {
-                    fragmentManager.beginTransaction().replace(R.id.fragment_container_main, msgFragment, "msg").commit();
-                    curFragment = msgFragment;
-                    setTabUnactived();
+                    fragmentTransaction.add(R.id.content_frame, settingFragment, "setting");
                 }
+                hideAllFragment();
+                fragmentTransaction.show(settingFragment).commit();
             }
-        });
 
-        btnVoice.setOnTouchListener(new View.OnTouchListener() {
-            private long startTime, endTime;
+            // Highlight the selected item and close the drawer
+            //lv_mainMenu.setItemChecked(position, true);
+            active_item = position;
+            mainMenuAdapter.notifyDataSetChanged();
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (curFragment == msgFragment) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        System.out.println("touch");
-                    } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        System.out.println("up");
-                    }
-                }
-                //return true, onTouchEvent will not perform ,onclick will not perform, too
-                return false;
+            View leftDrawer = findViewById(R.id.left_drawer);
+            drawerLayout.closeDrawer(leftDrawer);
+        }
+    }
+
+    private class MainMenuItem {
+        public String tag;
+        public int icon;
+        public int active_icon;
+        public String label;
+
+        public MainMenuItem(String id, int icon, int active_icon, String label) {
+            this.tag = id;
+            this.icon = icon;
+            this.active_icon = active_icon;
+            this.label = label;
+        }
+    }
+
+    class MainMenuAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return mainMenuItems.size();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view;
+            if (convertView != null) {
+                view = convertView;
+            } else {
+                view = getLayoutInflater().inflate(R.layout.main_menu_item, null);
             }
-        });
 
-        /*
-        tabs.setOnTouchListener(new View.OnTouchListener() {
-            private float origX, origY;
-            private float finalX, finalY;
+            ImageView icon = (ImageView) view.findViewById(R.id.menu_item_icon);
+            TextView label = (TextView) view.findViewById(R.id.menu_item_label);
+            MainMenuItem menuItem = mainMenuItems.get(position);
+            label.setText(menuItem.label);
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    origX = event.getX();
-                    origY = event.getY();
-
-                    if (curFragment == msgFragment && isClickMe(origX, origY, msgTab)) {
-                        System.out.println("popup voice window");
-                    }
-//                    System.out.println("tabs Down: origX->" + origX + ", origY->" + origY);
-                } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-
-                } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    finalX = event.getX();
-                    finalY = event.getY();
-//                    System.out.println("tabs UP: finalX->" + finalX + ", finalY->" + finalY);
-                    if (origY - finalY >= 35 && finalX - origX <= 35 && !isClickMe(origX, origY, msgTab)) {
-                        System.out.println("flip up");
-                        //此处向上滑出输入框
-                    } else if (Math.abs(origY - finalY) <= 12 && Math.abs(finalX - origX) <= 12) {
-
-                        if (isClickMe(origX, origY, taskTab)) {
-                            if (taskFagment == null)
-                                taskFagment = new TaskFragment();
-                            fragmentManager.beginTransaction().replace(R.id.fragment_content, taskFagment, "task").commit();
-                            curFragment = taskFagment;
-                            ImageView icon = (ImageView) findViewById(R.id.task_icon);
-                            TextView label = (TextView) findViewById(R.id.task_label);
-                            setTabUnactived();
-                            icon.setImageResource(R.drawable.task_icon_actived);
-                            label.setTextColor(0xff0066cc);
-                        } else if (isClickMe(origX, origY, deviceTab)) {
-                            if (deviceFragment == null)
-                                deviceFragment = new DeviceFragment();
-                            fragmentManager.beginTransaction().replace(R.id.fragment_content, deviceFragment, "device").commit();
-                            curFragment = deviceFragment;
-                            ImageView icon = (ImageView) findViewById(R.id.device_icon);
-                            TextView label = (TextView) findViewById(R.id.device_label);
-                            setTabUnactived();
-                            icon.setImageResource(R.drawable.device_icon_actived);
-                            label.setTextColor(0xff0066cc);
-                        } else if (isClickMe(origX, origY, meTab)) {
-                            if (meFragment == null)
-                                meFragment = new MeFragment();
-                            fragmentManager.beginTransaction().replace(R.id.fragment_content, meFragment, "me").commit();
-                            curFragment = meFragment;
-                            ImageView icon = (ImageView) findViewById(R.id.me_icon);
-                            TextView label = (TextView) findViewById(R.id.me_label);
-                            setTabUnactived();
-                            icon.setImageResource(R.drawable.me_icon_actived);
-                            label.setTextColor(0xff0066cc);
-                        } else if (isClickMe(origX, origY, settingTab)) {
-                            if (settingFragment == null)
-                                settingFragment = new SettingFragment();
-                            fragmentManager.beginTransaction().replace(R.id.fragment_content, settingFragment, "setting").commit();
-                            curFragment = settingFragment;
-                            ImageView icon = (ImageView) findViewById(R.id.setting_icon);
-                            TextView label = (TextView) findViewById(R.id.setting_label);
-                            setTabUnactived();
-                            icon.setImageResource(R.drawable.setting_icon_actived);
-                            label.setTextColor(0xff0066cc);
-                        } else if (isClickMe(origX, origY, msgTab)) {
-                            if (curFragment == msgFragment) {
-                                System.out.println("send the voice");
-                            } else if (curFragment != msgFragment) {
-                                fragmentManager.beginTransaction().replace(R.id.fragment_content, msgFragment, "msg").commit();
-                                curFragment = msgFragment;
-                                setTabUnactived();
-                            }
-                        }
-                    }
-                }
-                return true;
+            if (active_item == position) {
+                label.setTextColor(0xff007fff);
+                icon.setImageResource(menuItem.active_icon);
+            } else {
+                icon.setImageResource(menuItem.icon);
+                label.setTextColor(0xff000000);
             }
-        });
-        */
 
+            return view;
+        }
 
-    }
-/*
-    public boolean isClickMe (float x, float y, View view) {
-        if (x < view.getX() + view.getHeight() && x > view.getX() && y > view.getY() && y < view.getY() + view.getHeight())
-            return true;
-        return false;
-    }
-*/
-    public void setTabUnactived() {
-        ImageView icon = (ImageView) findViewById(R.id.task_tab_icon);
-        icon.setImageResource(R.drawable.task_icon);
-        icon = (ImageView) findViewById(R.id.device_tab_icon);
-        icon.setImageResource(R.drawable.device_icon);
-        icon = (ImageView) findViewById(R.id.me_tab_icon);
-        icon.setImageResource(R.drawable.me_icon);
-        icon = (ImageView) findViewById(R.id.setting_tab_icon);
-        icon.setImageResource(R.drawable.setting_icon);
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
 
-        TextView label = (TextView) findViewById(R.id.task_tab_label);
-        label.setTextColor(0xff333333);
-        label = (TextView) findViewById(R.id.device_tab_label);
-        label.setTextColor(0xff333333);
-        label = (TextView) findViewById(R.id.me_tab_label);
-        label.setTextColor(0xff333333);
-        label = (TextView) findViewById(R.id.setting_tab_label);
-        label.setTextColor(0xff333333);
+        @Override
+        public Object getItem(int position) {
+            return mainMenuItems.get(position);
+        }
     }
+
     @TargetApi(19)
     private void setTranslucentStatus(boolean on) {
         Window win = getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
-        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
         if (on) {
             winParams.flags |= bits;
         } else {

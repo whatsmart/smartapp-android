@@ -19,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.readystatesoftware.systembartint.SystemBarTintManager;
+
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
 import org.whatsmart.smartapp.base.device.Device;
@@ -107,8 +109,10 @@ public class DeviceFragment extends Fragment {
         toolbar.addView(refreshImg, 2, params1);
 
 //        toolbar.setLogo(R.drawable.toolbar_device_logo);
+        SystemBarTintManager tintManager = new SystemBarTintManager(getActivity());
+        SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
 
-        toolbar.setPadding(0, 0, (int) (getContext().getResources().getDisplayMetrics().density * 10),0);
+        toolbar.setPadding(0, config.getPixelInsetTop(false), 0, 0);
 
         AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
         compatActivity.setSupportActionBar(toolbar);

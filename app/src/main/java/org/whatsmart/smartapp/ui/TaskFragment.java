@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.readystatesoftware.systembartint.SystemBarTintManager;
+
 import org.whatsmart.smartapp.R;
 
 /**
@@ -28,10 +30,12 @@ public class TaskFragment extends Fragment {
     }
 
     public void setupToolbar() {
+        SystemBarTintManager tintManager = new SystemBarTintManager(getActivity());
+        SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+
         toolbar.setTitle("任务");
         toolbar.setTitleTextAppearance(getContext(), R.style.Toolbar_Title);
-
-        toolbar.setPadding(0, 0, (int) (getContext().getResources().getDisplayMetrics().density * 10), 0);
+        toolbar.setPadding(0, config.getPixelInsetTop(false), 0, 0);
 
         AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
         compatActivity.setSupportActionBar(toolbar);

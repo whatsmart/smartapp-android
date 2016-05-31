@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.whatsmart.smartapp.R;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 /**
  * Created by blue on 2016/3/7.
@@ -29,25 +30,18 @@ public class MsgFragment extends Fragment {
         toolbar = (Toolbar) view.findViewById(R.id.toolbar_msg);
         setupToolbar();
 
-        final EditText msgText = (EditText) view.findViewById(R.id.edittext_msg);
-        msgText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    System.out.println("TEXT:" + msgText.getText().toString());
-                }
-                return true;
-            }
-        });
 
         return view;
     }
 
     public void setupToolbar() {
+        SystemBarTintManager tintManager = new SystemBarTintManager(getActivity());
+        SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
+
         toolbar.setTitle("消息");
         toolbar.setTitleTextAppearance(getContext(), R.style.Toolbar_Title);
 
-        toolbar.setPadding(0, 0, (int) (getContext().getResources().getDisplayMetrics().density * 10), 0);
+        toolbar.setPadding(0, config.getPixelInsetTop(false), (int) (getContext().getResources().getDisplayMetrics().density * 10), 0);
 
         AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
         compatActivity.setSupportActionBar(toolbar);
