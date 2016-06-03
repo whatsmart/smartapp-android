@@ -15,3 +15,5 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep public class android.support.v7.preference.Preference { *; }
+-keep public class * extends android.support.v7.preference.Preference { *; }

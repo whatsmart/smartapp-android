@@ -1,8 +1,9 @@
 package org.whatsmart.smartapp.ui;
 
-import android.support.v4.app.Fragment;
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -27,11 +28,16 @@ public class MsgFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_msg, container, false);
 
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar_msg);
+        toolbar = (Toolbar) getActivity().findViewById(R.id.main_toolbar);
         setupToolbar();
 
-
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.setBackgroundColor(getResources().getColor(R.color.fragment_background));
     }
 
     public void setupToolbar() {
@@ -39,11 +45,11 @@ public class MsgFragment extends Fragment {
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
 
         toolbar.setTitle("消息");
-        toolbar.setTitleTextAppearance(getContext(), R.style.Toolbar_Title);
+        toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
 
-        toolbar.setPadding(0, config.getPixelInsetTop(false), (int) (getContext().getResources().getDisplayMetrics().density * 10), 0);
+        toolbar.setPadding(0, config.getPixelInsetTop(false), (int) (getActivity().getResources().getDisplayMetrics().density * 10), 0);
 
-        AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
-        compatActivity.setSupportActionBar(toolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
     }
 }

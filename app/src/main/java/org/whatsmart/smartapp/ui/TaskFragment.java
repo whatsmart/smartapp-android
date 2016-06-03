@@ -1,8 +1,8 @@
 package org.whatsmart.smartapp.ui;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -23,10 +23,16 @@ public class TaskFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task, container, false);
 
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar_task);
+        toolbar = (Toolbar) getActivity().findViewById(R.id.main_toolbar);
         setupToolbar();
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.setBackgroundColor(getResources().getColor(R.color.fragment_background));
     }
 
     public void setupToolbar() {
@@ -34,7 +40,7 @@ public class TaskFragment extends Fragment {
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
 
         toolbar.setTitle("任务");
-        toolbar.setTitleTextAppearance(getContext(), R.style.Toolbar_Title);
+        toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
         toolbar.setPadding(0, config.getPixelInsetTop(false), 0, 0);
 
         AppCompatActivity compatActivity = (AppCompatActivity) getActivity();

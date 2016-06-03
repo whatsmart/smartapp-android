@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    android:paddingTop="4dp">
+    android:paddingTop="5dp">
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,11 +15,11 @@
         android:background="@drawable/device_list_item_bg">
 
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/device_icon"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/device_doorlock_icon"
+            android:src="@drawable/lighting"
             android:scaleType="fitCenter"
             android:layout_centerVertical="true" />
         <TextView

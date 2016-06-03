@@ -5,20 +5,11 @@
     android:id="@+id/fragment_msg"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/toolbar_msg"
-        android:layout_alignParentTop="true"
-        android:background="#ff007fff">
-    </android.support.v7.widget.Toolbar>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/msg_list"
-        android:orientation="vertical"
-        android:layout_below="@+id/toolbar_msg">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"

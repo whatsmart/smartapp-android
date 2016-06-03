@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="main"
+    android:summary="Trying intro text">
+    <PreferenceCategory>
+        <EditTextPreference
+            android:title="网关地址"
+            android:key="gateway_address"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="defaultPress"
+            android:title="Default settings" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="customKey"
+            android:title="Custom" />
+        <PreferenceScreen
+            android:key="customPrefKey"
+            android:title="Custom Pattern Settings">
+            <EditTextPreference
+                android:title="网关地址"
+                android:key="gateway_address"/>
+        </PreferenceScreen>
+    </PreferenceCategory>
+</PreferenceScreen>

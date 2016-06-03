@@ -1,6 +1,8 @@
 package org.whatsmart.smartapp.ui;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,11 +15,13 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -47,18 +51,21 @@ import org.whatsmart.smartapp.base.device.Device;
 import java.lang.reflect.Array;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.List;
+
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 /**
  * Created by blue on 2016/3/7.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
+    private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private ListView lv_mainMenu;
     private int active_item = -1;
     private ArrayList<MainMenuItem> mainMenuItems;
 
-    private Fragment msgFragment;
+    private Fragment msgFragment = null;
     private Fragment deviceFragment = null;
     private Fragment taskFragment = null;
     private Fragment meFragment = null;
@@ -95,87 +102,110 @@ public class MainActivity extends AppCompatActivity {
         //drawerLayout.setScrimColor(Color.TRANSPARENT);
 
         //system bar tint
-        setTranslucentStatus(true);
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            setTranslucentStatus(true);
+        }
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
+        tintManager.setStatusBarTintEnabled(true);
+        tintManager.setTintColor(0x00007fff);
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
         drawer_header.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
-        tintManager.setTintColor(0x00007fff);
-        tintManager.setStatusBarTintEnabled(true);
+
+        //setup toolbar
+        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        toolbar.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
+        toolbar.setTitle("消息");
 
         //主页显示消息列表
         msgFragment = new MsgFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.content_frame, msgFragment, "msg")
-                .show(msgFragment).commit();
+              .add(R.id.content_frame, msgFragment, "msg").commit();
+    }
+
+    public void detachAllFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        if (msgFragment != null) {
+            transaction.detach(msgFragment);
+        }
+        if (deviceFragment != null) {
+            transaction.detach(deviceFragment);
+        }
+        if (taskFragment != null) {
+            transaction.detach(taskFragment);
+        }
+        if (meFragment != null) {
+            transaction.detach(meFragment);
+        }
+        if (settingFragment != null) {
+            transaction.detach(settingFragment);
+        }
+        transaction.commit();
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        public void hideAllFragment() {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            if (msgFragment != null) {
-                fragmentTransaction.hide(msgFragment);
-            }
-            if (deviceFragment != null) {
-                fragmentTransaction.hide(deviceFragment);
-            }
-            if (taskFragment != null) {
-                fragmentTransaction.hide(taskFragment);
-            }
-            if (meFragment != null) {
-                fragmentTransaction.hide(meFragment);
-            }
-            if (settingFragment != null) {
-                fragmentTransaction.hide(settingFragment);
-            }
-            fragmentTransaction.commit();
-        }
-
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             MainMenuItem menuItem = mainMenuItems.get(position);
 
-            if (menuItem.tag == "msg") {
-                if (msgFragment == null) {
-                    msgFragment = new MsgFragment();
-                    fragmentTransaction.add(R.id.content_frame, msgFragment, "msg");
-                }
-                hideAllFragment();
-                fragmentTransaction.show(msgFragment).commit();
-            } else if (menuItem.tag == "device") {
-                if (deviceFragment == null) {
-                    deviceFragment = new DeviceFragment();
-                    fragmentTransaction.add(R.id.content_frame, deviceFragment, "device");
-                }
-                hideAllFragment();
-                fragmentTransaction.show(deviceFragment).commit();
-            } else if (menuItem.tag == "task") {
-                if (taskFragment == null) {
-                    taskFragment = new TaskFragment();
-                    fragmentTransaction.add(R.id.content_frame, taskFragment, "task");
-                }
-                hideAllFragment();
-                fragmentTransaction.show(taskFragment).commit();
-            } else if (menuItem.tag == "me") {
-                if (meFragment == null) {
-                    meFragment = new MeFragment();
-                    fragmentTransaction.add(R.id.content_frame, meFragment, "me");
-                }
-                hideAllFragment();
-                fragmentTransaction.show(meFragment).commit();
-            } else if (menuItem.tag == "setting"){
-                if (settingFragment == null) {
-                    settingFragment = new SettingFragment();
-                    fragmentTransaction.add(R.id.content_frame, settingFragment, "setting");
-                }
-                hideAllFragment();
-                fragmentTransaction.show(settingFragment).commit();
+            switch (menuItem.tag) {
+                case "msg":
+                    if (msgFragment == null) {
+                        msgFragment = new MsgFragment();
+                        fragmentTransaction.add(R.id.content_frame, msgFragment, "msg").commit();
+                    } else {
+                        detachAllFragment();
+                        //fragmentTransaction.show(msgFragment).commit();
+                        fragmentTransaction.attach(msgFragment).commit();
+                    }
+                    break;
+                case "device":
+                    if (deviceFragment == null) {
+                        deviceFragment = new DeviceFragment();
+                        fragmentTransaction.add(R.id.content_frame, deviceFragment, "device").commit();
+                    } else {
+                        detachAllFragment();
+                        //fragmentTransaction.show(deviceFragment).commit();
+                        fragmentTransaction.attach(deviceFragment).commit();
+                    }
+                    break;
+                case "task":
+                    if (taskFragment == null) {
+                        taskFragment = new TaskFragment();
+                        fragmentTransaction.add(R.id.content_frame, taskFragment, "task").commit();
+                    } else {
+                        detachAllFragment();
+                        //fragmentTransaction.show(taskFragment).commit();
+                        fragmentTransaction.attach(taskFragment).commit();
+                    }
+                    break;
+                case "me":
+                    if (meFragment == null) {
+                        meFragment = new MeFragment();
+                        fragmentTransaction.add(R.id.content_frame, meFragment, "me").commit();
+                    } else {
+                        detachAllFragment();
+                        //fragmentTransaction.show(meFragment).commit();
+                        fragmentTransaction.attach(meFragment).commit();
+                    }
+                    break;
+                case "setting":
+                    if (settingFragment == null) {
+                        settingFragment = new SettingFragment();
+                        fragmentTransaction.add(R.id.content_frame, settingFragment, "setting").commit();
+                    } else {
+                        detachAllFragment();
+                        //fragmentTransaction.show(settingFragment).commit();
+                        fragmentTransaction.attach(settingFragment).commit();
+                    }
+                    break;
             }
 
             // Highlight the selected item and close the drawer
-            //lv_mainMenu.setItemChecked(position, true);
+            //@?lv_mainMenu.setItemChecked(position, true);
             active_item = position;
             mainMenuAdapter.notifyDataSetChanged();
 
@@ -240,15 +270,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onPreferenceStartScreen(PreferenceFragmentCompat preferenceFragmentCompat,
+                                           PreferenceScreen preferenceScreen) {
+        SettingFragment fragment = new SettingFragment();
+        Bundle args = new Bundle();
+        args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
+        fragment.setArguments(args);
+
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.content_frame, fragment, preferenceScreen.getKey());
+        ft.addToBackStack(preferenceScreen.getKey());
+        //hideAllFragment();
+        ft.commit();
+
+        return true;
+    }
+
     @TargetApi(19)
     private void setTranslucentStatus(boolean on) {
         Window win = getWindow();
         WindowManager.LayoutParams winParams = win.getAttributes();
-        final int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
         if (on) {
-            winParams.flags |= bits;
+            winParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            winParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
         } else {
-            winParams.flags &= ~bits;
+            winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            winParams.flags &= ~WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
         }
         win.setAttributes(winParams);
     }

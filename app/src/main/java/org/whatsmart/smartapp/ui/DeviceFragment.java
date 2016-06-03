@@ -40,30 +40,31 @@ public class DeviceFragment extends Fragment {
     private ListView devList;
     private Toolbar toolbar;
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view =  inflater.inflate(R.layout.fragment_device, container, false);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //toolbar_main
+        toolbar = (Toolbar) getActivity().findViewById(R.id.main_toolbar);
+        setupToolbar();
+
+        //menu
+        //setHasOptionsMenu(true);
 
         SmartApp smartApp = (SmartApp) getActivity().getApplication();
         devices = smartApp.getDevices();
-
-        //menu
-//        setHasOptionsMenu(true);
-
-        //toolbar_main
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar_device);
-        setupToolbar();
 
         Device light = new Device();
         light.setId(1);
         light.setType("lighting");
         light.setName("智能灯");
         devices.add(light);
+    }
 
-        handler = new MyDeviceHandler();
-        DeviceManager dm = new DeviceManager(handler, "http://localhost/smartapi");
-        dm.getDevices();
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view =  inflater.inflate(R.layout.fragment_device, container, false);
 
         //setup listview of device
         devList = (ListView) view.findViewById(R.id.listview_device);
@@ -74,12 +75,18 @@ public class DeviceFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.setBackgroundColor(getResources().getColor(R.color.fragment_background));
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 //        inflater.inflate(R.menu.device_menu, menu);
     }
 
     private void setupToolbar() {
-        ImageView addImg = new ImageView(getContext());
+        ImageView addImg = new ImageView(getActivity());
         addImg.setImageResource(R.drawable.toolbar_device_add);
         addImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +95,7 @@ public class DeviceFragment extends Fragment {
             }
         });
 
-        ImageView refreshImg = new ImageView(getContext());
+        ImageView refreshImg = new ImageView(getActivity());
         refreshImg.setImageResource(R.drawable.toolbar_device_refresh);
         refreshImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,11 +104,11 @@ public class DeviceFragment extends Fragment {
             }
         });
 
-        Toolbar.LayoutParams params = new Toolbar.LayoutParams(Commen.dp2px(getContext(), 24), Commen.dp2px(getContext(), 24), Gravity.RIGHT);
-        Toolbar.LayoutParams params1 = new Toolbar.LayoutParams(Commen.dp2px(getContext(), 24), Commen.dp2px(getContext(), 24), Gravity.RIGHT);
+        Toolbar.LayoutParams params = new Toolbar.LayoutParams(Commen.dp2px(getActivity(), 24), Commen.dp2px(getActivity(), 24), Gravity.RIGHT);
+        Toolbar.LayoutParams params1 = new Toolbar.LayoutParams(Commen.dp2px(getActivity(), 24), Commen.dp2px(getActivity(), 24), Gravity.RIGHT);
 
         toolbar.setTitle("设备");
-        toolbar.setTitleTextAppearance(getContext(), R.style.Toolbar_Title);
+        toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
 
         toolbar.addView(addImg, 1, params);
 
