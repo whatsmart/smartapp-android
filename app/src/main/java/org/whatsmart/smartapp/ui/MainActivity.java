@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             MainMenuItem menuItem = mainMenuItems.get(position);
 
+            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             switch (menuItem.tag) {
                 case "msg":
                     if (msgFragment == null) {

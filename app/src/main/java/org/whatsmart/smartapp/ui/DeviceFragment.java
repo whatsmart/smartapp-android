@@ -33,11 +33,11 @@ import java.util.ArrayList;
  * Created by blue on 2016/3/9.
  */
 public class DeviceFragment extends Fragment {
-
+    private DeviceManager deviceManager;
     private ArrayList<Device> devices = null;
     private Handler handler;
     private DeviceListAdapter devListAdapter;
-    private ListView devList;
+    private ListView lv_devices;
     private Toolbar toolbar;
 
     @Override
@@ -52,13 +52,13 @@ public class DeviceFragment extends Fragment {
         //setHasOptionsMenu(true);
 
         SmartApp smartApp = (SmartApp) getActivity().getApplication();
+
         devices = smartApp.getDevices();
 
-        Device light = new Device();
-        light.setId(1);
-        light.setType("lighting");
-        light.setName("智能灯");
-        devices.add(light);
+        handler = new Handler();
+        String apiAddress = smartApp.gateway_url + "/jsonrpc/v1.0/device";
+        deviceManager = new DeviceManager(handler, apiAddress);
+        deviceManager.getDevices();
     }
 
     @Nullable
@@ -67,9 +67,9 @@ public class DeviceFragment extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_device, container, false);
 
         //setup listview of device
-        devList = (ListView) view.findViewById(R.id.listview_device);
+        lv_devices = (ListView) view.findViewById(R.id.listview_device);
         devListAdapter = new DeviceListAdapter();
-        devList.setAdapter(devListAdapter);
+        lv_devices.setAdapter(devListAdapter);
 
         return view;
     }

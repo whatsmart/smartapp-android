@@ -14,6 +14,7 @@
     </style>
 
     <style name="AppTheme.SettingPreference.Preference.Screen">
+        <item name="android:widgetLayout">@layout/setting_preference_screen</item>
     </style>
 
     <style name="AppTheme.SettingPreference.Preference.Information">
@@ -33,6 +34,20 @@
         <item name="widgetLayout">@layout/setting_preference_checkbox</item>
     </style>
 
+    <style name="AppTheme.SettingPreference.Preference.SwitchCompat">
+        <item name="android:layout">@layout/setting_preference</item>
+        <item name="android:widgetLayout">@layout/preference_widget_switch</item>
+        <item name="android:switchTextOn">@string/v7_preference_on</item>
+        <item name="android:switchTextOff">@string/v7_preference_off</item>
+    </style>
+
+    <style name="AppTheme.SettingPreference.Preference.Switch">
+        <item name="layout">@layout/setting_preference</item>
+        <item name="android:widgetLayout">@layout/preference_widget_switch</item>
+        <item name="android:switchTextOn">@string/v7_preference_on</item>
+        <item name="android:switchTextOff">@string/v7_preference_off</item>
+    </style>
+
     <style name="AppTheme.SettingPreference.Preference.Dialog">
         <item name="positiveButtonText">@android:string/ok</item>
         <item name="negativeButtonText">@android:string/cancel</item>
@@ -40,13 +55,17 @@
     <style name="AppTheme.SettingPreference.Preference.Dialog.EditText">
         <item name="dialogLayout">@layout/preference_dialog_edittext</item>
     </style>
-
-    <style name="AppTheme.SettingPreference" parent="@style/PreferenceThemeOverlay">
+    <!--
+    <style name="AppTheme.SettingPreference" parent="PreferenceThemeOverlay.v14.Material">
+    -->
+    <style name="AppTheme.SettingPreference">
         <item name="preferenceStyle">@style/AppTheme.SettingPreference.Preference</item>
         <item name="preferenceScreenStyle">@style/AppTheme.SettingPreference.Preference.Screen</item>
         <item name="preferenceInformationStyle">@style/AppTheme.SettingPreference.Preference.Information</item>
         <item name="preferenceCategoryStyle">@style/AppTheme.SettingPreference.Preference.Category</item>
         <item name="checkBoxPreferenceStyle">@style/AppTheme.SettingPreference.Preference.Checkbox</item>
+        <item name="switchPreferenceCompatStyle">@style/AppTheme.SettingPreference.Preference.SwitchCompat</item>
+        <item name="switchPreferenceStyle">@style/AppTheme.SettingPreference.Preference.Switch</item>
         <item name="editTextPreferenceStyle">@style/AppTheme.SettingPreference.Preference.Dialog.EditText</item>
     </style>
 

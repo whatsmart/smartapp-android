@@ -2,24 +2,30 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="main"
     android:summary="Trying intro text">
+
     <PreferenceCategory>
-        <EditTextPreference
-            android:title="网关地址"
-            android:key="gateway_address"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="defaultPress"
-            android:title="Default settings" />
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="customKey"
-            android:title="Custom" />
         <PreferenceScreen
-            android:key="customPrefKey"
-            android:title="Custom Pattern Settings">
-            <EditTextPreference
-                android:title="网关地址"
-                android:key="gateway_address"/>
+            android:key="gateway_setting"
+            android:title="网关设置">
+            <PreferenceCategory>
+                <EditTextPreference
+                    android:title="网关地址"
+                    android:key="gateway_address"/>
+            </PreferenceCategory>
         </PreferenceScreen>
+    </PreferenceCategory>
+
+    <PreferenceCategory>
+        <SwitchPreference
+            android:title="启用通知"
+            android:key="enable_notification"/>
+        <SwitchPreference
+            android:title="新设备添加"
+            android:key="new_device_added"
+            android:dependency="enable_notification"/>
+        <SwitchPreference
+            android:title="任务完成提醒"
+            android:key="task_finish"
+            android:dependency="enable_notification"/>
     </PreferenceCategory>
 </PreferenceScreen>
