@@ -3,4 +3,10 @@
     <string name="send">发送</string>
     <string name="press_to_speak">按住说话</string>
     <string name="message_list">消息</string>
+    <string name="power">电源</string>
+    <string name="brightness">亮度</string>
+    <string name="color">颜色</string>
+    <string name="on">打开</string>
+    <string name="off">关闭</string>
+    <string name="lighting_state">电源 %1$s  亮度 %2$s 颜色 %3$s</string>
 </resources>

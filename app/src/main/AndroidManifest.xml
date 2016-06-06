@@ -25,9 +25,11 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name=".SmartApp"
-        android:allowBackup="true" android:label="小智"
+        android:allowBackup="true" android:label="智居"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher" android:supportsRtl="true">
 

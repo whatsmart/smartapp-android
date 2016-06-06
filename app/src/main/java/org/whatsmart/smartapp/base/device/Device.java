@@ -1,16 +1,23 @@
 package org.whatsmart.smartapp.base.device;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by blue on 2016/3/16.
  */
 public class Device {
-    private int id; //the id in the smarthub(smart gateway)
-    private String name;
-    private String type;
-    private String postion;
-    private String vender;
-    private String hwversion;
-    private String swversion;
+    public int id; //the id in the gateway(smart gateway)
+    public String uniqid;
+    public String name;
+    public String type;
+    public String position;
+    public String vender;
+    public String hwversion;
+    public String swversion;
+    public List<String> operations;
+    public Map<String, Object> state;
+
 
     public int getId() {
         return id;
@@ -20,12 +27,20 @@ public class Device {
         this.id = id;
     }
 
+    public String getUniqid() {
+        return uniqid;
+    }
+
+    public void setUniqid(String uniqid) {
+        this.uniqid = uniqid;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = new String(name);
+        this.name = name;
     }
 
     public String getType() {
@@ -33,15 +48,15 @@ public class Device {
     }
 
     public void setType(String type) {
-        this.type = new String(type);
+        this.type = type;
     }
 
-    public String getPostion() {
-        return postion;
+    public String getPosition() {
+        return position;
     }
 
-    public void setPostion(String postion) {
-        this.postion = new String(postion);
+    public void setPosition(String postion) {
+        this.position = position;
     }
 
     public String getVender() {
@@ -49,7 +64,7 @@ public class Device {
     }
 
     public void setVender(String vender) {
-        this.vender = new String(vender);
+        this.vender = vender;
     }
 
     public String getHwversion() {
@@ -57,7 +72,7 @@ public class Device {
     }
 
     public void setHwversion(String hwversion) {
-        this.hwversion = new String(hwversion);
+        this.hwversion = hwversion;
     }
 
     public String getSwversion() {
@@ -65,6 +80,23 @@ public class Device {
     }
 
     public void setSwversion(String swversion) {
-        this.swversion = new String(swversion);
+        this.swversion = swversion;
     }
+
+    public Map<String, Object> getState() {
+        return state;
+    }
+
+    public void setState(Map<String, Object> state) {
+        this.state = state;
+    }
+
+    public List<String> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(List<String> operations) {
+        this.operations = operations;
+    }
+
 }

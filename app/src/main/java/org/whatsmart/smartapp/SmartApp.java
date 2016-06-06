@@ -8,6 +8,7 @@ import android.util.Log;
 import org.whatsmart.smartapp.base.device.Device;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by blue on 2016/3/16.
@@ -17,7 +18,7 @@ public class SmartApp extends Application {
     public String gateway_url;
     private ArrayList<Device> devices = new ArrayList<>();
 
-    public ArrayList<Device> getDevices() {
+    public List<Device> getDevices() {
         return devices;
     }
 

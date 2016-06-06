@@ -1,11 +1,13 @@
 package org.whatsmart.smartapp.ui;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
@@ -24,17 +26,17 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
 import org.whatsmart.smartapp.base.device.Device;
-import org.whatsmart.smartapp.server.smarthub.DeviceHandler;
-import org.whatsmart.smartapp.server.smarthub.DeviceManager;
+import org.whatsmart.smartapp.server.gateway.DeviceHandler;
+import org.whatsmart.smartapp.server.gateway.DeviceManager;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by blue on 2016/3/9.
  */
 public class DeviceFragment extends Fragment {
     private DeviceManager deviceManager;
-    private ArrayList<Device> devices = null;
+    private List<Device> devices = null;
     private Handler handler;
     private DeviceListAdapter devListAdapter;
     private ListView lv_devices;
@@ -52,14 +54,64 @@ public class DeviceFragment extends Fragment {
         //setHasOptionsMenu(true);
 
         SmartApp smartApp = (SmartApp) getActivity().getApplication();
-
         devices = smartApp.getDevices();
 
-        handler = new Handler();
         String apiAddress = smartApp.gateway_url + "/jsonrpc/v1.0/device";
-        deviceManager = new DeviceManager(handler, apiAddress);
-        deviceManager.getDevices();
+        DeviceManager.setup(apiAddress);
+
+        try {
+            new UIGetDevicesTask().execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        try {
+            final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.container_device_list);
+            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    new UIRefreshGetDevicesTask(refreshLayout).execute();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    class UIRefreshGetDevicesTask extends DeviceManager.GetDevicesTask {
+        public SwipeRefreshLayout refreshLayout;
+        public UIRefreshGetDevicesTask (SwipeRefreshLayout refreshLayout) {
+            this.refreshLayout = refreshLayout;
+        }
+        @Override
+        protected void onPostExecute(Object o) {
+            if (o != null) {
+                devices.clear();
+                devices.addAll((List<Device>) o);
+                //@todo 重新设置adapter，数据的内容更新，但getitemid返回相同，否则不能更新
+                lv_devices.setAdapter(devListAdapter);
+                devListAdapter.notifyDataSetChanged();
+            }
+            refreshLayout.setRefreshing(false);
+            super.onPostExecute(o);
+        }
+    }
+
+    class UIGetDevicesTask extends DeviceManager.GetDevicesTask {
+        @Override
+        protected void onPostExecute(Object o) {
+            if (o != null) {
+                devices.addAll((List<Device>) o);
+                devListAdapter.notifyDataSetChanged();
+            }
+            super.onPostExecute(o);
+        }
+    };
 
     @Nullable
     @Override
@@ -148,21 +200,27 @@ public class DeviceFragment extends Fragment {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View view;
-            Device dev = devices.get(position);
             if (convertView != null) {
                 view = convertView;
             } else {
                 view = getActivity().getLayoutInflater().inflate(R.layout.item_device_list, null);
+                Device device = devices.get(position);
 
-//                RelativeLayout rl = (RelativeLayout) view.findViewById(R.id.item_device_list);
                 ImageView icon = (ImageView) view.findViewById(R.id.device_icon);
                 TextView name = (TextView) view.findViewById(R.id.device_name);
                 TextView status = (TextView) view.findViewById(R.id.device_status);
 
-//                icon.setImageResource(R.drawable.setting_icon_actived);
-                name.setText("智能灯");
-                status.setText("电源打开");
-
+                if ("lighting".equalsIgnoreCase(device.getType())) {
+                    icon.setImageResource(R.drawable.device_lighting_icon);
+                }
+                name.setText(device.getName() + "(" + device.getPosition() + ")");
+                Resources res = getResources();
+                try {
+                    status.setText(String.format(res.getString(R.string.lighting_state), device.getState().get("power"),
+                                   device.getState().get("brightness"), device.getState().get("color")));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 view.setOnClickListener(new DeviceItemOnClickListener(position));
             }
             return view;
@@ -186,17 +244,21 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    private class MyDeviceHandler extends DeviceHandler {
+    private class DeviceManagerHandler extends DeviceHandler {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == GET_ONE_ITEM) {
+            if (msg.what == GET_ONE_DEVICE) {
                 Device dev = new Device();
                 dev.setId(msg.getData().getInt("id"));
                 dev.setName(msg.getData().getString("name"));
                 dev.setType(msg.getData().getString("type"));
                 devices.add(dev);
                 devListAdapter.notifyDataSetChanged();
+            } if (msg.what == GET_ALL_DEVICES) {
+
             }
+
+            super.handleMessage(msg);
         }
     }
 }
