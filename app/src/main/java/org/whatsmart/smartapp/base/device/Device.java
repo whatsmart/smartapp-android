@@ -16,7 +16,37 @@ public class Device {
     public String hwversion;
     public String swversion;
     public List<String> operations;
-    public Map<String, Object> state;
+    public State state;
+
+    public class State {
+        public String power;
+        public int brightness;
+        public String color;
+
+        public String getPower() {
+            return power;
+        }
+
+        public void setPower(String power) {
+            this.power = power;
+        }
+
+        public int getBrightness() {
+            return brightness;
+        }
+
+        public void setBrightness(int brightness) {
+            this.brightness = brightness;
+        }
+
+        public String getColor() {
+            return color;
+        }
+
+        public void setColor(String color) {
+            this.color = color;
+        }
+    }
 
 
     public int getId() {
@@ -55,7 +85,7 @@ public class Device {
         return position;
     }
 
-    public void setPosition(String postion) {
+    public void setPosition(String position) {
         this.position = position;
     }
 
@@ -83,14 +113,6 @@ public class Device {
         this.swversion = swversion;
     }
 
-    public Map<String, Object> getState() {
-        return state;
-    }
-
-    public void setState(Map<String, Object> state) {
-        this.state = state;
-    }
-
     public List<String> getOperations() {
         return operations;
     }
@@ -99,4 +121,11 @@ public class Device {
         this.operations = operations;
     }
 
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
 }

@@ -111,11 +111,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
         drawer_header.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
 
-        //setup toolbar
-        toolbar = (Toolbar) findViewById(R.id.main_toolbar);
-        toolbar.setPadding(0, config.getPixelInsetTop(false), config.getPixelInsetRight(), config.getPixelInsetBottom());
-        toolbar.setTitle("消息");
-
         //主页显示消息列表
         msgFragment = new MsgFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();

@@ -1,22 +1,24 @@
 package org.whatsmart.smartapp.ui;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,22 +27,23 @@ import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
-import org.whatsmart.smartapp.base.device.Device;
-import org.whatsmart.smartapp.server.gateway.DeviceHandler;
-import org.whatsmart.smartapp.server.gateway.DeviceManager;
+import org.whatsmart.smartapp.server.gateway.APIDevice;
+import org.whatsmart.smartapp.ui.control.Lighting;
 
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * Created by blue on 2016/3/9.
  */
 public class DeviceFragment extends Fragment {
-    private DeviceManager deviceManager;
-    private List<Device> devices = null;
+    private APIDevice deviceManager;
+    private List<org.whatsmart.smartapp.base.device.Device> devices = null;
     private Handler handler;
     private DeviceListAdapter devListAdapter;
     private ListView lv_devices;
     private Toolbar toolbar;
+    private String apiPrefix;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,19 +51,16 @@ public class DeviceFragment extends Fragment {
 
         //toolbar_main
         toolbar = (Toolbar) getActivity().findViewById(R.id.main_toolbar);
-        setupToolbar();
 
         //menu
         //setHasOptionsMenu(true);
 
         SmartApp smartApp = (SmartApp) getActivity().getApplication();
         devices = smartApp.getDevices();
-
-        String apiAddress = smartApp.gateway_url + "/jsonrpc/v1.0/device";
-        DeviceManager.setup(apiAddress);
+        apiPrefix = ((SmartApp) getActivity().getApplication()).gateway_url + "/jsonrpc/v1.0";
 
         try {
-            new UIGetDevicesTask().execute();
+            new UIGetDevicesTask().execute(apiPrefix + "/device");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -70,12 +70,14 @@ public class DeviceFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        setupToolbar();
+
         try {
             final SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.container_device_list);
             refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    new UIRefreshGetDevicesTask(refreshLayout).execute();
+                    new UIRefreshGetDevicesTask().execute(apiPrefix + "/device");
                 }
             });
         } catch (Exception e) {
@@ -83,30 +85,28 @@ public class DeviceFragment extends Fragment {
         }
     }
 
-    class UIRefreshGetDevicesTask extends DeviceManager.GetDevicesTask {
-        public SwipeRefreshLayout refreshLayout;
-        public UIRefreshGetDevicesTask (SwipeRefreshLayout refreshLayout) {
-            this.refreshLayout = refreshLayout;
-        }
+    class UIRefreshGetDevicesTask extends APIDevice.GetDevicesTask {
         @Override
-        protected void onPostExecute(Object o) {
-            if (o != null) {
+        protected void onPostExecute(Object result) {
+            SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.container_device_list);
+            if (result != null) {
                 devices.clear();
-                devices.addAll((List<Device>) o);
+                devices.addAll((List<org.whatsmart.smartapp.base.device.Device>) result);
                 //@todo 重新设置adapter，数据的内容更新，但getitemid返回相同，否则不能更新
                 lv_devices.setAdapter(devListAdapter);
                 devListAdapter.notifyDataSetChanged();
             }
             refreshLayout.setRefreshing(false);
-            super.onPostExecute(o);
+            super.onPostExecute(result);
         }
     }
 
-    class UIGetDevicesTask extends DeviceManager.GetDevicesTask {
+    class UIGetDevicesTask extends APIDevice.GetDevicesTask {
         @Override
         protected void onPostExecute(Object o) {
             if (o != null) {
-                devices.addAll((List<Device>) o);
+                devices.clear();
+                devices.addAll((List<org.whatsmart.smartapp.base.device.Device>) o);
                 devListAdapter.notifyDataSetChanged();
             }
             super.onPostExecute(o);
@@ -138,43 +138,21 @@ public class DeviceFragment extends Fragment {
     }
 
     private void setupToolbar() {
-        ImageView addImg = new ImageView(getActivity());
-        addImg.setImageResource(R.drawable.toolbar_device_add);
-        addImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("add device clicked");
-            }
-        });
-
-        ImageView refreshImg = new ImageView(getActivity());
-        refreshImg.setImageResource(R.drawable.toolbar_device_refresh);
-        refreshImg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("refresh device clicked");
-            }
-        });
-
-        Toolbar.LayoutParams params = new Toolbar.LayoutParams(Commen.dp2px(getActivity(), 24), Commen.dp2px(getActivity(), 24), Gravity.RIGHT);
-        Toolbar.LayoutParams params1 = new Toolbar.LayoutParams(Commen.dp2px(getActivity(), 24), Commen.dp2px(getActivity(), 24), Gravity.RIGHT);
-
-        toolbar.setTitle("设备");
-        toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
-
-        toolbar.addView(addImg, 1, params);
-
-        params1.setMargins(0, 0, 45, 0);
-        toolbar.addView(refreshImg, 2, params1);
-
-//        toolbar.setLogo(R.drawable.toolbar_device_logo);
         SystemBarTintManager tintManager = new SystemBarTintManager(getActivity());
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
 
+        //toolbar.setTitle("设备");
+        //toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
+        ((TextView)toolbar.findViewById(R.id.toolbar_title)).setText("设备");
+
         toolbar.setPadding(0, config.getPixelInsetTop(false), 0, 0);
 
-        AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
-        compatActivity.setSupportActionBar(toolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        ActionBar actionbar = activity.getSupportActionBar();
+        if (actionbar != null) {
+            actionbar.setDisplayShowTitleEnabled(false);
+        }
     }
 
 
@@ -187,13 +165,13 @@ public class DeviceFragment extends Fragment {
 
         @Override
         public Object getItem(int position) {
-            Device dev = devices.get(position);
+            org.whatsmart.smartapp.base.device.Device dev = devices.get(position);
             return dev;
         }
 
         @Override
         public long getItemId(int position) {
-            Device dev = devices.get(position);
+            org.whatsmart.smartapp.base.device.Device dev = devices.get(position);
             return dev.getId();
         }
 
@@ -204,7 +182,7 @@ public class DeviceFragment extends Fragment {
                 view = convertView;
             } else {
                 view = getActivity().getLayoutInflater().inflate(R.layout.item_device_list, null);
-                Device device = devices.get(position);
+                org.whatsmart.smartapp.base.device.Device device = devices.get(position);
 
                 ImageView icon = (ImageView) view.findViewById(R.id.device_icon);
                 TextView name = (TextView) view.findViewById(R.id.device_name);
@@ -216,49 +194,84 @@ public class DeviceFragment extends Fragment {
                 name.setText(device.getName() + "(" + device.getPosition() + ")");
                 Resources res = getResources();
                 try {
-                    status.setText(String.format(res.getString(R.string.lighting_state), device.getState().get("power"),
-                                   device.getState().get("brightness"), device.getState().get("color")));
+                    status.setText(String.format(res.getString(R.string.lighting_state), device.getState().getPower(),
+                                   device.state.getBrightness(), device.getState().getColor()));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 view.setOnClickListener(new DeviceItemOnClickListener(position));
+                view.setOnLongClickListener(new DeviceItemOnLongClickListener(position));
             }
             return view;
         }
     }
 
-    private class DeviceItemOnClickListener implements View.OnClickListener {
+    class DeviceItemOnClickListener implements View.OnClickListener {
         private int id;
         public DeviceItemOnClickListener(int id) {
             this.id = id;
         }
         @Override
         public void onClick(View v) {
-            Context context = getContext();
-            Device dev = devices.get(id);
+            org.whatsmart.smartapp.base.device.Device dev = devices.get(id);
             String type = dev.getType();
             if ("lighting".equals(type)) {
-                LightingConfig ltconfig = new LightingConfig(context, dev);
-                ltconfig.config();
+                Lighting ltconfig = new Lighting((AppCompatActivity) getActivity(), apiPrefix, dev);
+                ltconfig.show();
             }
         }
     }
 
-    private class DeviceManagerHandler extends DeviceHandler {
+    class DeviceItemOnLongClickListener implements View.OnLongClickListener {
+        public int position;
+        public DeviceItemOnLongClickListener (int position) {
+            this.position = position;
+        }
+
         @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == GET_ONE_DEVICE) {
-                Device dev = new Device();
-                dev.setId(msg.getData().getInt("id"));
-                dev.setName(msg.getData().getString("name"));
-                dev.setType(msg.getData().getString("type"));
-                devices.add(dev);
-                devListAdapter.notifyDataSetChanged();
-            } if (msg.what == GET_ALL_DEVICES) {
+        public boolean onLongClick(View v) {
+            final org.whatsmart.smartapp.base.device.Device device = devices.get(position);
 
-            }
+            final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            final View view = getActivity().getLayoutInflater().inflate(R.layout.device_setting_info, null);
+            ((TextView)view.findViewById(R.id.title_device_setting)).setText("设备信息");
+            ((EditText)view.findViewById(R.id.et_name)).setText(device.getName());
+            ((EditText)view.findViewById(R.id.et_position)).setText(device.getPosition());
+            builder.setView(view);
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        EditText et_name = (EditText) view.findViewById(R.id.et_name);
+                        EditText et_position = (EditText) view.findViewById(R.id.et_position);
+                        final String name = et_name.getText().toString();
+                        final String position = et_position.getText().toString();
+                        TreeMap<String, Object> map = new TreeMap<String, Object>();
+                        map.put("name", name);
+                        map.put("position", position);
 
-            super.handleMessage(msg);
+                        new APIDevice.SetInfoTask() {
+                            @Override
+                            protected void onPostExecute(Object o) {
+                                super.onPostExecute(o);
+                                Boolean result = (Boolean) o;
+                                if (result) {
+                                    device.setName(name);
+                                    device.setPosition(position);
+                                    lv_devices.setAdapter(devListAdapter);
+                                    devListAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        }.execute(apiPrefix + "/device/" + device.getId(), map);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            builder.setCancelable(true);
+            builder.show();
+
+            return true;
         }
     }
 }

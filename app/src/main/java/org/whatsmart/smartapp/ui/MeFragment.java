@@ -3,11 +3,13 @@ package org.whatsmart.smartapp.ui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
@@ -24,9 +26,14 @@ public class MeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
 
         toolbar = (Toolbar) getActivity().findViewById(R.id.main_toolbar);
-        setupToolbar();
 
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        setupToolbar();
     }
 
     @Override
@@ -39,12 +46,18 @@ public class MeFragment extends Fragment {
         SystemBarTintManager tintManager = new SystemBarTintManager(getActivity());
         SystemBarTintManager.SystemBarConfig config = tintManager.getConfig();
 
-        toolbar.setTitle("我的");
-        toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
+        //toolbar.setTitle("我的");
+        //toolbar.setTitleTextAppearance(getActivity(), R.style.Toolbar_Title);
+        ((TextView)toolbar.findViewById(R.id.toolbar_title)).setText("个人中心");
+
         toolbar.setPadding(0, config.getPixelInsetTop(false), 0, 0);
 
-        AppCompatActivity compatActivity = (AppCompatActivity) getActivity();
-        compatActivity.setSupportActionBar(toolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        ActionBar actionbar = activity.getSupportActionBar();
+        if (actionbar != null) {
+            actionbar.setDisplayShowTitleEnabled(false);
+        }
     }
 
 }

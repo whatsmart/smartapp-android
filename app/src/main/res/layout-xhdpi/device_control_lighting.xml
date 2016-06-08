@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="电源"
-            android:id="@+id/textView3"
+            android:id="@+id/lb_name"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
 
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="开关"
-            android:id="@+id/switch1"
+            android:id="@+id/sw_power"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true" />
     </RelativeLayout>
@@ -46,17 +46,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="亮度"
-            android:id="@+id/textView4"
+            android:id="@+id/lb_position"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
 
         <SeekBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/seekBar2"
+            android:id="@+id/sb_brightness"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/textView4"
+            android:layout_toRightOf="@+id/lb_position"
             android:layout_marginLeft="15dp"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:max="100" />
     </RelativeLayout>
 </LinearLayout>
