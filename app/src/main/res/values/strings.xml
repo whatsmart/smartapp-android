@@ -8,5 +8,6 @@
     <string name="color">颜色</string>
     <string name="on">打开</string>
     <string name="off">关闭</string>
+    <string name="fmt_off">关闭</string>
     <string name="lighting_state">电源 %1$s  亮度 %2$s 颜色 %3$s</string>
 </resources>

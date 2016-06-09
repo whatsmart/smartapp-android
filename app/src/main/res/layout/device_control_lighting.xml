@@ -60,4 +60,28 @@
             android:layout_centerVertical="true"
             android:max="100" />
     </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="颜色"
+            android:id="@+id/lb_color"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true" />
+
+        <com.larswerkman.holocolorpicker.ColorPicker
+            android:id="@+id/cp_color"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/lb_color"
+            android:layout_alignParentEnd="true" />
+    </RelativeLayout>
 </LinearLayout>

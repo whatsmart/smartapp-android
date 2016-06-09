@@ -31,17 +31,15 @@
             android:textSize="16sp"
             android:textColor="#444444" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/device_status"
+            android:id="@+id/device_state"
             android:layout_toRightOf="@+id/device_icon"
             android:layout_below="@+id/device_name"
             android:layout_marginLeft="10dp"
-            android:textSize="14sp"
-            android:textColor="#777777"
-            android:paddingTop="2dp" />
+            android:paddingTop="2dp"
+            android:orientation="horizontal" />
 
     </RelativeLayout>
 </LinearLayout>

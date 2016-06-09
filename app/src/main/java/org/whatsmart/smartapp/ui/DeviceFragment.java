@@ -1,8 +1,6 @@
 package org.whatsmart.smartapp.ui;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -20,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -31,6 +30,7 @@ import org.whatsmart.smartapp.server.gateway.APIDevice;
 import org.whatsmart.smartapp.ui.control.Lighting;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 /**
@@ -179,26 +179,43 @@ public class DeviceFragment extends Fragment {
         public View getView(final int position, View convertView, ViewGroup parent) {
             View view;
             if (convertView != null) {
+                //@todo 更新信息
                 view = convertView;
             } else {
-                view = getActivity().getLayoutInflater().inflate(R.layout.item_device_list, null);
+                view = getActivity().getLayoutInflater().inflate(R.layout.list_item_device, null);
+                LinearLayout state = (LinearLayout) view.findViewById(R.id.device_state);
+                View lighting_state = getActivity().getLayoutInflater().inflate(R.layout.list_item_device_info_lighting, state);
                 org.whatsmart.smartapp.base.device.Device device = devices.get(position);
 
                 ImageView icon = (ImageView) view.findViewById(R.id.device_icon);
                 TextView name = (TextView) view.findViewById(R.id.device_name);
-                TextView status = (TextView) view.findViewById(R.id.device_status);
+
+                TextView tv_power = (TextView) lighting_state.findViewById(R.id.tv_power);
+                TextView tv_brightness = (TextView) lighting_state.findViewById(R.id.tv_brightness);
+                TextView tv_color = (TextView) lighting_state.findViewById(R.id.tv_color);
+                try {
+                    if ("on".equalsIgnoreCase(device.getState().getPower())) {
+                        tv_power.setText(R.string.on);
+                    } else {
+                        tv_power.setText(R.string.off);
+                    }
+                    tv_brightness.setText(String.format("%d", device.getState().getBrightness()));
+                    try {
+                        int c = 0xff << 30;
+                        int color = Integer.valueOf(device.getState().getColor().substring(2), 16);
+                        tv_color.setBackgroundColor(c | color);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 if ("lighting".equalsIgnoreCase(device.getType())) {
                     icon.setImageResource(R.drawable.device_lighting_icon);
                 }
-                name.setText(device.getName() + "(" + device.getPosition() + ")");
-                Resources res = getResources();
-                try {
-                    status.setText(String.format(res.getString(R.string.lighting_state), device.getState().getPower(),
-                                   device.state.getBrightness(), device.getState().getColor()));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                name.setText(device.getName() + "（" + device.getPosition() + "）");
+
                 view.setOnClickListener(new DeviceItemOnClickListener(position));
                 view.setOnLongClickListener(new DeviceItemOnLongClickListener(position));
             }
@@ -216,7 +233,7 @@ public class DeviceFragment extends Fragment {
             org.whatsmart.smartapp.base.device.Device dev = devices.get(id);
             String type = dev.getType();
             if ("lighting".equals(type)) {
-                Lighting ltconfig = new Lighting((AppCompatActivity) getActivity(), apiPrefix, dev);
+                Lighting ltconfig = new Lighting((AppCompatActivity) getActivity(),lv_devices, apiPrefix, dev);
                 ltconfig.show();
             }
         }
