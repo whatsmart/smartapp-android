@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:background="#fff">
 
     <TextView
         android:layout_width="wrap_content"
@@ -22,7 +25,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="电源"
+            android:text="@string/power"
             android:id="@+id/lb_name"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
@@ -45,7 +48,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="亮度"
+            android:text="@string/brightness"
             android:id="@+id/lb_position"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true" />
@@ -65,23 +68,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp" >
+        android:layout_marginTop="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="颜色"
+            android:text="@string/color"
             android:id="@+id/lb_color"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true" />
+            android:layout_centerVertical="true" />
 
-        <com.larswerkman.holocolorpicker.ColorPicker
-            android:id="@+id/cp_color"
+        <com.flask.colorpicker.ColorPickerView
+            android:id="@+id/color_picker"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            app:density="8"
+            app:wheelType="CIRCLE"
             android:layout_toRightOf="@+id/lb_color"
-            android:layout_alignParentEnd="true" />
+            android:layout_marginLeft="15dp"
+            android:layout_centerVertical="true" />
+
     </RelativeLayout>
+
 </LinearLayout>

@@ -29,7 +29,7 @@
 
     <application
         android:name=".SmartApp"
-        android:allowBackup="true" android:label="智居"
+        android:allowBackup="true" android:label="小智"
         android:theme="@style/AppTheme"
         android:icon="@mipmap/ic_launcher" android:supportsRtl="true">
 

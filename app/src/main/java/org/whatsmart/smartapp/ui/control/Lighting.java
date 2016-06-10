@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -12,12 +13,12 @@ import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.flask.colorpicker.ColorPickerView;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Excluder;
 import com.google.gson.reflect.TypeToken;
-import com.larswerkman.holocolorpicker.ColorPicker;
 
 import org.json.JSONObject;
 import org.whatsmart.smartapp.R;
@@ -25,6 +26,7 @@ import org.whatsmart.smartapp.base.device.Device;
 import org.whatsmart.smartapp.server.jsonrpc.JSONRPCError;
 import org.whatsmart.smartapp.server.jsonrpc.JSONRPCHTTPClient;
 import org.whatsmart.smartapp.server.jsonrpc.JSONRPCResponse;
+import org.whatsmart.smartapp.ui.Common;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -40,7 +42,8 @@ public class Lighting {
     private Device device;
     private Switch sw_power;
     private SeekBar sb_brightness;
-    private ColorPicker cp_color;
+
+    private ColorPickerView cp_color;
 
     public Lighting(AppCompatActivity activity, ListView lv_devices, String apiPrefix, Device dev) {
         this.activity = activity;
@@ -56,9 +59,7 @@ public class Lighting {
 
             sw_power = (Switch) view.findViewById(R.id.sw_power);
             sb_brightness = (SeekBar) view.findViewById(R.id.sb_brightness);
-            //@todo 实现饱和度和亮度
-            cp_color = (ColorPicker) view.findViewById(R.id.cp_color);
-            cp_color.setShowOldCenterColor(false);
+            cp_color = (ColorPickerView) view.findViewById(R.id.color_picker);
 
             if ("on".equalsIgnoreCase(device.getState().getPower())) {
                 sw_power.setChecked(true);
@@ -68,9 +69,9 @@ public class Lighting {
 
             sb_brightness.setProgress(device.getState().getBrightness());
 
-            int c = 0xff << 30;
             int color = Integer.valueOf(device.getState().getColor().substring(2), 16);
-            cp_color.setColor(c | color);
+            color = 0xff000000 | Common.removeLightness(color);
+            cp_color.setColor(color);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setView(view);
@@ -94,8 +95,9 @@ public class Lighting {
                 power = "off";
             }
 
-            int color = cp_color.getColor();
-            color = color & 0x00ffffff;
+            int color = cp_color.getSelectedColor();
+            int c = 0x00ffffff;
+            color = color & c;
             final String colorStr = "0x" + String.format("%06x", color);
 
             if (brightness == device.getState().getBrightness() &&

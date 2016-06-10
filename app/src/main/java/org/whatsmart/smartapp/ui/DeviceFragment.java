@@ -203,6 +203,7 @@ public class DeviceFragment extends Fragment {
                     try {
                         int c = 0xff << 30;
                         int color = Integer.valueOf(device.getState().getColor().substring(2), 16);
+                        color = Common.removeLightness(color);
                         tv_color.setBackgroundColor(c | color);
                     } catch (Exception e) {
                         e.printStackTrace();
