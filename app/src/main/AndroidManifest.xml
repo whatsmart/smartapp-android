@@ -69,7 +69,7 @@
         </receiver>
         <!-- Required SDK核心功能-->
         <activity
-            android:name="jpush"
+            android:name="cn.jpush.android.ui.PushActivity"
             android:configChanges="orientation|keyboardHidden"
             android:exported="false" >
             <intent-filter>

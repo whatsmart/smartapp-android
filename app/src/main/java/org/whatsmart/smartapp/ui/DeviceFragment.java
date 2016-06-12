@@ -1,6 +1,10 @@
 package org.whatsmart.smartapp.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -10,6 +14,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,16 +27,23 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
+import org.whatsmart.smartapp.base.device.Device;
 import org.whatsmart.smartapp.server.gateway.APIDevice;
 import org.whatsmart.smartapp.ui.control.Lighting;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeMap;
+
+import cn.jpush.android.api.JPushInterface;
 
 /**
  * Created by blue on 2016/3/9.
@@ -44,6 +56,7 @@ public class DeviceFragment extends Fragment {
     private ListView lv_devices;
     private Toolbar toolbar;
     private String apiPrefix;
+    private PushReceiver pushReceiver;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +77,11 @@ public class DeviceFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        pushReceiver = new PushReceiver();
+        IntentFilter intentFilter = new IntentFilter(JPushInterface.ACTION_MESSAGE_RECEIVED);
+        intentFilter.addCategory(getContext().getPackageName());
+        getContext().registerReceiver(pushReceiver, intentFilter);
     }
 
     @Override
@@ -124,6 +142,13 @@ public class DeviceFragment extends Fragment {
         lv_devices.setAdapter(devListAdapter);
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        getContext().unregisterReceiver(pushReceiver);
     }
 
     @Override
@@ -204,6 +229,7 @@ public class DeviceFragment extends Fragment {
                         int c = 0xff << 30;
                         int color = Integer.valueOf(device.getState().getColor().substring(2), 16);
                         color = Common.removeLightness(color);
+                        Log.d("DEVICE_LIST", String.format("%08x", c | color));
                         tv_color.setBackgroundColor(c | color);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -290,6 +316,60 @@ public class DeviceFragment extends Fragment {
             builder.show();
 
             return true;
+        }
+    }
+
+    class PushReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            try {
+                if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
+                    String message = bundle.getString(JPushInterface.EXTRA_MESSAGE);
+                    JsonParser parser = new JsonParser();
+                    JsonElement msg = parser.parse(message);
+                    Log.d("STATE_CHANGED", message);
+                    if (msg instanceof JsonObject) {
+                        JsonObject stateChanged = (JsonObject) ((JsonObject) msg).get("device_state_changed");
+                        if (((JsonObject) msg).has("device_state_changed")) {
+                            int id = stateChanged.get("id").getAsInt();
+                            Log.d("STATE_CHANGED", "device id: " + id);
+                            Device  device = null;
+                            for (int i=0; i<devices.size(); i++) {
+                                if (id == devices.get(i).getId()) {
+                                    device = devices.get(i);
+                                    break;
+                                }
+                            }
+                            if (device != null) {
+                                if ("lighting".equalsIgnoreCase(device.getType())) {
+                                    JsonObject states = stateChanged.getAsJsonObject("state");
+                                    if (states.has("power")) {
+                                        device.getState().setPower(states.get("power").getAsString());
+                                    }
+                                    if (states.has("brightness")) {
+                                        device.getState().setBrightness(states.get("brightness").getAsInt());
+                                    }
+                                    if (states.has("color")) {
+                                        device.getState().setColor(states.get("color").getAsString());
+                                    }
+                                }
+                                Log.d("STATE_CHANGED", "color: " + device.getState().getColor());
+                                //@todo 更好的方法更新
+                                lv_devices.setAdapter(lv_devices.getAdapter());
+                            }
+                        }
+                    }
+
+                } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
+                } else if (JPushInterface.ACTION_NOTIFICATION_OPENED.equals(intent.getAction())) {
+                } else if (JPushInterface.ACTION_RICHPUSH_CALLBACK.equals(intent.getAction())) {
+                } else if (JPushInterface.ACTION_CONNECTION_CHANGE.equals(intent.getAction())) {
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -54,6 +55,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+
+import cn.jpush.android.api.JPushInterface;
+
 /**
  * Created by blue on 2016/3/7.
  */
@@ -116,6 +120,23 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
               .add(R.id.content_frame, msgFragment, "msg").commit();
+    }
+
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+        return super.onCreateView(name, context, attrs);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        JPushInterface.onPause(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        JPushInterface.onResume(this);
     }
 
     public void detachAllFragment() {

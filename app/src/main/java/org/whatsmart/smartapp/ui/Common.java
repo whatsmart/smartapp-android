@@ -24,7 +24,6 @@ public class Common {
         B = rgb & 0x000000ff;
         max = Math.max(R, Math.max(G, G));
         min = Math.min(R, Math.min(G, G));
-        System.out.println("max: "+ max + ", min:" + min);
         if (max == min) {
             H = 0f;
         } else if (max == R && G >= B) {
@@ -54,7 +53,6 @@ public class Common {
         b = (int) (V * (1 - S * f)*255);
         c = (int)(V * (1 - S * (1 - f))*255);
 
-        System.out.println("a: " + a + "b: " + b + "c: " + c + ", d:" + d + "H: " + H);
         switch (d) {
             case 0:
                 R = (int) (V * 255);
