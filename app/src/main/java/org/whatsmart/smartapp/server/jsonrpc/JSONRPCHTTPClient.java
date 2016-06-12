@@ -1,5 +1,6 @@
 package org.whatsmart.smartapp.server.jsonrpc;
 
+import android.util.ArrayMap;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -16,6 +17,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by blue on 2016/6/8.
@@ -24,9 +28,15 @@ public class JSONRPCHTTPClient {
     //url必须是http协议
     public String apiAddress;
     public static int id = 0;
+    public Map<String, String> headers;
 
     public JSONRPCHTTPClient(String apiAddress) {
         this.apiAddress = apiAddress;
+        headers = new HashMap<>();
+    }
+
+    public void setHeader(String name, String value) {
+        headers.put(name, value);
     }
 
     public String buildRequest(String method, JsonElement params) {
@@ -58,6 +68,9 @@ public class JSONRPCHTTPClient {
             httpConn.setReadTimeout(20000);
             httpConn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             httpConn.setRequestProperty("Accept-Encoding", "identity");
+            for (String name : headers.keySet()) {
+                httpConn.setRequestProperty(name, headers.get(name));
+            }
             OutputStream outputStream = httpConn.getOutputStream();
             outputStream.write(request.getBytes());
             httpConn.connect();

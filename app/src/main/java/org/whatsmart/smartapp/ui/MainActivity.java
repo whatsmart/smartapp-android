@@ -7,11 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.DrawableRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,6 +27,7 @@ import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,16 +47,21 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.whatsmart.smartapp.SmartApp;
 import org.whatsmart.smartapp.R;
 import org.whatsmart.smartapp.base.device.Device;
+import org.whatsmart.smartapp.server.jsonrpc.JSONRPCHTTPClient;
+import org.whatsmart.smartapp.server.jsonrpc.JSONRPCResponse;
 
 import java.lang.reflect.Array;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import cn.jpush.android.api.JPushInterface;
@@ -120,6 +128,36 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
               .add(R.id.content_frame, msgFragment, "msg").commit();
+
+        setClientInfo();
+    }
+
+    public void setClientInfo() {
+        try {
+            String regId = JPushInterface.getRegistrationID(this);
+            Log.d("PUSH", "设备id : " + regId);
+
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+            String rpcUrl = "http://" + sp.getString("gateway_address", "121.42.156.167") + "/jsonrpc/v1.0";
+            JSONRPCHTTPClient client = new JSONRPCHTTPClient(rpcUrl);
+            client.setHeader("Device-Token", regId);
+            JsonObject params = new JsonObject();
+            params.addProperty("name", Build.MODEL);
+            params.addProperty("platform", "android");
+            client.call("/push", "set_client_info", params, new JSONRPCResponse.ResponseCallback() {
+                @Override
+                public void onResult(JsonElement result) {
+                    System.out.println("register deviceid to server success");
+                }
+
+                @Override
+                public void onError(JsonElement error) {
+                    Toast.makeText(MainActivity.this, ((JsonObject) error).get("message").getAsString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override

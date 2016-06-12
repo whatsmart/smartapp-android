@@ -1,5 +1,6 @@
 package org.whatsmart.smartapp.ui;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +21,12 @@ import android.widget.TextView;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import org.whatsmart.smartapp.R;
+import org.whatsmart.smartapp.SmartApp;
 
 /**
  * Created by blue on 2016/6/2.
  */
-public class SettingFragment extends PreferenceFragmentCompat {
+public class SettingFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Toolbar toolbar;
 
     @Nullable
@@ -68,6 +71,15 @@ public class SettingFragment extends PreferenceFragmentCompat {
         ActionBar actionbar = activity.getSupportActionBar();
         if (actionbar != null) {
             actionbar.setDisplayShowTitleEnabled(false);
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.d("SETTING", "setting changed: " + key + ": " + sharedPreferences.getString(key, null));
+        if ("gateway_address".equalsIgnoreCase(key)) {
+            String gateway_address = sharedPreferences.getString("gateway_address", "");
+            ((SmartApp)getActivity().getApplication()).gateway_url = "http://" + gateway_address;
         }
     }
 }

@@ -55,7 +55,7 @@ public class DeviceFragment extends Fragment {
     private DeviceListAdapter devListAdapter;
     private ListView lv_devices;
     private Toolbar toolbar;
-    private String apiPrefix;
+    private String apiPrefix = "/jsonrpc/v1.0";
     private PushReceiver pushReceiver;
 
     @Override
@@ -70,10 +70,9 @@ public class DeviceFragment extends Fragment {
 
         SmartApp smartApp = (SmartApp) getActivity().getApplication();
         devices = smartApp.getDevices();
-        apiPrefix = ((SmartApp) getActivity().getApplication()).gateway_url + "/jsonrpc/v1.0";
 
         try {
-            new UIGetDevicesTask().execute(apiPrefix + "/device");
+            new UIGetDevicesTask().execute(getGatewayUrl() + apiPrefix + "/device");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -82,6 +81,17 @@ public class DeviceFragment extends Fragment {
         IntentFilter intentFilter = new IntentFilter(JPushInterface.ACTION_MESSAGE_RECEIVED);
         intentFilter.addCategory(getContext().getPackageName());
         getContext().registerReceiver(pushReceiver, intentFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        getContext().unregisterReceiver(pushReceiver);
+    }
+
+    public String getGatewayUrl() {
+        return ((SmartApp) getActivity().getApplication()).gateway_url;
     }
 
     @Override
@@ -95,7 +105,7 @@ public class DeviceFragment extends Fragment {
             refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    new UIRefreshGetDevicesTask().execute(apiPrefix + "/device");
+                    new UIRefreshGetDevicesTask().execute(getGatewayUrl() + apiPrefix + "/device");
                 }
             });
         } catch (Exception e) {
@@ -147,8 +157,6 @@ public class DeviceFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
-        getContext().unregisterReceiver(pushReceiver);
     }
 
     @Override
@@ -260,7 +268,7 @@ public class DeviceFragment extends Fragment {
             org.whatsmart.smartapp.base.device.Device dev = devices.get(id);
             String type = dev.getType();
             if ("lighting".equals(type)) {
-                Lighting ltconfig = new Lighting((AppCompatActivity) getActivity(),lv_devices, apiPrefix, dev);
+                Lighting ltconfig = new Lighting((AppCompatActivity) getActivity(),lv_devices, getGatewayUrl()+apiPrefix, dev);
                 ltconfig.show();
             }
         }
@@ -306,7 +314,7 @@ public class DeviceFragment extends Fragment {
                                     devListAdapter.notifyDataSetChanged();
                                 }
                             }
-                        }.execute(apiPrefix + "/device/" + device.getId(), map);
+                        }.execute(getGatewayUrl()+apiPrefix + "/device/" + device.getId(), map);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -324,6 +332,7 @@ public class DeviceFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
+            System.out.println("Device Fragment Push Receiver");
             try {
                 if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
                     String message = bundle.getString(JPushInterface.EXTRA_MESSAGE);

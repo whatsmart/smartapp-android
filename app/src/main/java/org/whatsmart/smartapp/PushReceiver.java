@@ -4,8 +4,12 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -14,6 +18,8 @@ import com.google.gson.JsonParser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.whatsmart.smartapp.server.jsonrpc.JSONRPCHTTPClient;
+import org.whatsmart.smartapp.server.jsonrpc.JSONRPCResponse;
 import org.whatsmart.smartapp.ui.MainActivity;
 
 import java.util.Iterator;
@@ -32,15 +38,14 @@ public class PushReceiver extends BroadcastReceiver {
     private static final String TAG = "JPush";
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(final Context context, Intent intent) {
 /*
         Bundle bundle = intent.getExtras();
         System.out.println("[MyReceiver] onReceive - " + intent.getAction());
 
         if (JPushInterface.ACTION_REGISTRATION_ID.equals(intent.getAction())) {
-            String regId = bundle.getString(JPushInterface.EXTRA_REGISTRATION_ID);
-            System.out.println("[MyReceiver] 接收Registration Id : " + regId);
-            //send the Registration Id to your server...
+
+        }
 
         } else if (JPushInterface.ACTION_MESSAGE_RECEIVED.equals(intent.getAction())) {
         } else if (JPushInterface.ACTION_NOTIFICATION_RECEIVED.equals(intent.getAction())) {
